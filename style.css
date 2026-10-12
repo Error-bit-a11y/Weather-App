@@ -1,0 +1,191 @@
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-highlight: rgba(255, 255, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 1.5s ease-in-out;
+            background-color: #0F2027;
+            /* Fallback */
+        }
+
+        /* --- Dynamic Themes --- */
+        .theme-morning {
+            background: linear-gradient(to bottom, #8CA8D9, #E3C1B4, #F2DFCE);
+        }
+
+        .theme-day {
+            background: linear-gradient(to bottom, #4CA1AF, #2C3E50);
+        }
+
+        .theme-evening {
+            background: linear-gradient(to bottom, #2B1836, #B83A4B, #E47C5D);
+        }
+
+        .theme-night {
+            background: linear-gradient(to bottom, #0F2027, #203A43, #2C5364);
+        }
+
+        /* --- Glassmorphism --- */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-color: var(--glass-highlight);
+        }
+
+        /* --- Background Animations --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Celestial Bodies */
+        .celestial {
+            position: absolute;
+            border-radius: 50%;
+            transition: all 2s ease-in-out;
+        }
+
+        .sun {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #FFF4D0 0%, #FFD700 40%, transparent 80%);
+            box-shadow: 0 0 60px #FFD700;
+            top: 10%;
+            right: 15%;
+            animation: pulse-glow 4s infinite alternate;
+        }
+
+        .moon {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #FFFFFF 10%, #E0E0E0 50%, transparent 90%);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+            top: 15%;
+            right: 20%;
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out alternate;
+            opacity: 0;
+        }
+
+        /* Clouds */
+        .cloud-bg {
+            position: absolute;
+            opacity: 0.4;
+            animation: drift var(--duration) linear infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 50px #FFD700;
+            }
+
+            100% {
+                transform: scale(1.05);
+                box-shadow: 0 0 80px #FFD700;
+            }
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.1;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateX(-20vw);
+            }
+
+            to {
+                transform: translateX(120vw);
+            }
+        }
+
+        @keyframes spin-slow {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin-slow {
+            animation: spin-slow 12s linear infinite;
+        }
+
+        /* Theme Toggle Active State */
+        .theme-btn {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .theme-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Scrollbar --- */
+        .hide-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .hide-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .hide-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .hide-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+   

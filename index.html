@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhopal Pro Weather</title>
+
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body id="app-body" class="flex items-center justify-center p-4 sm:p-6 lg:p-12">
+
+    <!-- Dynamic Background Elements -->
+    <div id="bg-canvas"></div>
+
+    <main
+        class="glass w-full max-w-6xl rounded-[2.5rem] p-6 sm:p-8 lg:p-12 relative overflow-hidden flex flex-col gap-8 shadow-2xl">
+
+        <!-- Loading State -->
+        <div id="loader"
+            class="absolute inset-0 bg-black/50 backdrop-blur-xl z-50 flex flex-col items-center justify-center transition-opacity duration-500 rounded-[2.5rem]">
+            <div class="relative w-24 h-24 mb-6">
+                <!-- SVG Spinner -->
+                <svg class="spin-slow w-full h-full text-yellow-400 opacity-80" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="4" stroke-dasharray="60 40"
+                        stroke-linecap="round" />
+                    <circle cx="50" cy="50" r="25" stroke="white" stroke-width="4" stroke-dasharray="30 20"
+                        stroke-linecap="round" class="origin-center" style="animation-direction: reverse;" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold tracking-wider">Syncing Atmosphere...</h2>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-screen"
+            class="hidden absolute inset-0 bg-red-900/80 backdrop-blur-xl z-50 flex flex-col items-center justify-center rounded-[2.5rem] p-8 text-center">
+            <svg class="w-20 h-20 text-white mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                </path>
+            </svg>
+            <h2 class="text-3xl font-bold mb-2">Connection Lost</h2>
+            <p id="error-msg" class="text-red-100 opacity-90 mb-8 max-w-md">Unable to fetch weather data at the moment.
+            </p>
+            <button onclick="fetchWeatherData()"
+                class="px-8 py-3 bg-white text-red-900 font-bold rounded-full hover:bg-red-50 transition-colors shadow-lg">Retry
+                Connection</button>
+        </div>
+
+        <!-- Header / Top Bar -->
+        <header
+            class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-6">
+            <div class="w-full md:w-auto">
+                <div class="flex items-center gap-2 mb-4 w-full max-w-sm">
+                    <div class="relative w-full">
+                        <input type="text" id="city-search-input" placeholder="Search city..."
+                            class="w-full bg-white/10 border border-white/20 rounded-full py-2 px-4 pl-10 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 backdrop-blur-md transition-all shadow-inner">
+                        <svg class="w-5 h-5 absolute left-3 top-2.5 text-white/60" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button onclick="handleSearch()"
+                        class="bg-white/20 hover:bg-white/30 text-white p-2.5 rounded-full border border-white/20 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-white/40">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3 mb-1">
+                    <svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <h1 id="display-city-name" class="text-4xl sm:text-5xl font-extrabold tracking-tight">Bhopal</h1>
+                </div>
+                <p id="display-region" class="text-lg sm:text-xl font-medium text-white/70 ml-11">Madhya Pradesh, India
+                </p>
+            </div>
+            <div class="text-left md:text-right w-full md:w-auto">
+                <p id="current-time" class="text-3xl font-bold tracking-wider mb-1">--:--</p>
+                <p id="current-date" class="text-white/70 font-medium">Loading date...</p>
+
+                <!-- Theme Toggles -->
+                <div class="flex flex-wrap items-center justify-start md:justify-end gap-2 text-sm font-medium mt-3">
+                    <button onclick="setThemeMode('auto')" id="btn-theme-auto"
+                        class="theme-btn active bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full border border-white/20 transition-colors shadow-sm">Auto</button>
+                    <button onclick="setThemeMode('morning')" id="btn-theme-morning"
+                        class="theme-btn bg-white/5 hover:bg-white/20 text-white/70 hover:text-white px-3 py-1.5 rounded-full border border-transparent transition-colors">Morning</button>
+                    <button onclick="setThemeMode('day')" id="btn-theme-day"
+                        class="theme-btn bg-white/5 hover:bg-white/20 text-white/70 hover:text-white px-3 py-1.5 rounded-full border border-transparent transition-colors">Day</button>
+                    <button onclick="setThemeMode('evening')" id="btn-theme-evening"
+                        class="theme-btn bg-white/5 hover:bg-white/20 text-white/70 hover:text-white px-3 py-1.5 rounded-full border border-transparent transition-colors">Evening</button>
+                    <button onclick="setThemeMode('night')" id="btn-theme-night"
+                        class="theme-btn bg-white/5 hover:bg-white/20 text-white/70 hover:text-white px-3 py-1.5 rounded-full border border-transparent transition-colors">Night</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Current Weather Hero -->
+        <section class="flex flex-col lg:flex-row items-center gap-10 py-4">
+            <div class="w-full lg:w-1/2 flex items-center justify-center lg:justify-start gap-8">
+                <!-- Large SVG Icon Container -->
+                <div id="current-icon-container"
+                    class="w-40 h-40 sm:w-56 sm:h-56 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
+                    <!-- SVG injected by JS -->
+                </div>
+                <div class="flex flex-col">
+                    <h2
+                        class="text-7xl sm:text-[8rem] font-black leading-none tracking-tighter drop-shadow-lg flex items-start">
+                        <span id="current-temp">--</span>
+                        <span class="text-4xl sm:text-6xl font-bold mt-2 sm:mt-4">°</span>
+                    </h2>
+                    <p id="current-desc" class="text-2xl sm:text-3xl font-semibold mt-2 text-white/90 tracking-wide">--
+                    </p>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-1/2 grid grid-cols-2 gap-4">
+                <!-- Additional Current Metrics (Mocked for design, could be added via API later) -->
+                <div class="glass-card rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+                    <svg class="w-8 h-8 mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    <span class="text-white/60 text-sm font-semibold uppercase tracking-wider">Status</span>
+                    <span id="day-status" class="text-xl font-bold mt-1">--</span>
+                </div>
+                <div class="glass-card rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+                    <svg class="w-8 h-8 mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="text-white/60 text-sm font-semibold uppercase tracking-wider">Live</span>
+                    <span class="text-xl font-bold mt-1 text-green-300">Updating...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10-Day Forecast Grid/Scroll -->
+        <section class="mt-4">
+            <div class="flex justify-between items-center mb-6 px-2">
+                <h3 class="text-2xl font-bold">10-Day Outlook</h3>
+                <span
+                    class="text-sm font-medium text-white/60 bg-white/10 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                    Scroll horizontally &rarr;
+                </span>
+            </div>
+
+            <div id="forecast-container"
+                class="flex gap-4 sm:gap-6 overflow-x-auto hide-scroll pb-8 pt-2 snap-x snap-mandatory">
+                <!-- Cards injected here -->
+            </div>
+        </section>
+        <script src="script.js"></script>
+
+
+    </main>
+
+
+</body>
+
+</html>
